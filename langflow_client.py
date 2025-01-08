@@ -1,8 +1,6 @@
 import requests
 import json
 
-
-
 class LangflowAPIClient:
     def __init__(self, debug=False):
         self.BASE_API_URL = "https://api.langflow.astra.datastax.com"
@@ -45,7 +43,8 @@ class LangflowAPIClient:
                 print(f"Headers: {json.dumps(headers, indent=2)}")
                 print(f"Payload: {json.dumps(payload, indent=2)}")
             
-            response = requests.post(api_url, json=payload, headers=headers)
+            # Updated timeout to 60 seconds
+            response = requests.post(api_url, json=payload, headers=headers, timeout=60)
             
             if self.debug:
                 print(f"\nResponse Status Code: {response.status_code}")
@@ -61,6 +60,9 @@ class LangflowAPIClient:
             # Format the response for better readability
             return self.format_analysis(text)
             
+        except requests.exceptions.Timeout:
+            error_msg = "The request timed out."
+            return error_msg
         except requests.RequestException as e:
             error_msg = f"Error making API request: {str(e)}"
             if hasattr(e, 'response') and hasattr(e.response, 'text'):
@@ -92,5 +94,4 @@ if __name__ == "__main__":
     client = LangflowAPIClient(debug=True)
     result = client.get_social_analysis("reel")
     print("\nAnalysis Result:")
-    print( result)
-
+    print(result)
